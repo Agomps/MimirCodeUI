@@ -3,15 +3,12 @@ import requests
 import utils
 import json
 import re
-import sys # Import sys to access command-line arguments
+import sys
 
 # --- Configuration ---
 
 CONFIG = utils.read_config("config.json")
-# These will be set based on command-line arguments, but we'll keep them
-# as global variables for consistency with how they're used throughout the script.
-# They will be overwritten by the main_documentation function's arguments.
-OUTPUT_DIR = CONFIG["OUTPUT_DIR"] # This will be effectively ignored/overwritten by arg
+OUTPUT_DIR = CONFIG["OUTPUT_DIR"]
 OLLAMA_API_URL = CONFIG["OLLAMA_API_URL"]
 OLLAMA_MODEL = CONFIG["OLLAMA_MODEL"]
 CHUNK_SIZE_CHARACTERS = CONFIG["CHUNK_SIZE_CHARACTERS"]
@@ -33,7 +30,6 @@ SUPPORTED_EXTENSIONS = {
     '.php': 'php',
 }
 
-# Global variables to be set by main_documentation
 SOURCE_CODE_DIR = None
 DOC_OUTPUT_DIR = None
 
@@ -121,7 +117,6 @@ def call_ollama(prompt, model=OLLAMA_MODEL, temperature=0.2, num_predict=1024):
 def document_file_with_ollama(file_content, file_name, file_type):
     markdown_doc = ""
 
-    # Ollama Generating Overall Summary
     print("  Generating overall summary...")
     summary_prompt = f"""You are an expert software engineer and technical writer.
     Analyze the following {file_type} code/configuration from the file '{file_name}'.
@@ -140,7 +135,6 @@ def document_file_with_ollama(file_content, file_name, file_type):
     markdown_doc += summary + "\n\n"
     markdown_doc += "---\n\n"
 
-    # Ollama Generating Properties, Variables, Functions (Detailed Explanation)
     print("  Generating detailed explanation of components...")
     components_prompt = f"""You are an expert software engineer and technical writer.
     Analyze the following {file_type} code/configuration from the file '{file_name}'.
@@ -161,8 +155,6 @@ def document_file_with_ollama(file_content, file_name, file_type):
     markdown_doc += components_doc + "\n\n"
     markdown_doc += "---\n\n"
 
-    # Ollama Generating Examples on How to Use the Code (if applicable)
-    # This prompt asks Ollama to determine if examples are needed and then provide them.
     print("  Generating usage examples (if applicable)...")
     examples_prompt = f"""You are an expert software engineer and technical writer.
     Consider the following {file_type} code from the file '{file_name}'.
@@ -215,8 +207,6 @@ def generate_table_of_contents(documented_files_info, output_dir):
     print(f"\nTable of Contents generated at: {toc_file_path}")
 
 # --- Main Execution Logic ---
-
-# Modified to accept source_code_path and doc_output_path as arguments
 def main_documentation(source_code_path, doc_output_path):
     global SOURCE_CODE_DIR, DOC_OUTPUT_DIR
     SOURCE_CODE_DIR = source_code_path
@@ -224,7 +214,7 @@ def main_documentation(source_code_path, doc_output_path):
 
     if not os.path.isdir(SOURCE_CODE_DIR):
         print(f"Error: The provided source path '{SOURCE_CODE_DIR}' is not a valid directory or does not exist.")
-        sys.exit(1) # Exit with an error code to signal failure to the calling script (Gradio UI)
+        sys.exit(1)
 
     os.makedirs(DOC_OUTPUT_DIR, exist_ok=True)
     print(f"Output documentation will be saved in: {os.path.abspath(DOC_OUTPUT_DIR)}")
@@ -235,7 +225,7 @@ def main_documentation(source_code_path, doc_output_path):
 
     if not file_paths:
         print("No supported files found in the specified directory. Exiting.")
-        sys.exit(0) # Exit with a success code if no files, as it's not an error, just no work to do
+        sys.exit(0)
 
     for file_path in file_paths:
         relative_path_of_code_file = os.path.relpath(file_path, SOURCE_CODE_DIR)
@@ -243,9 +233,8 @@ def main_documentation(source_code_path, doc_output_path):
         file_name_without_ext, ext = os.path.splitext(base_name)
         file_type = get_file_type(ext)
 
-        # Output path for this file's documentation
         output_sub_dir = os.path.join(DOC_OUTPUT_DIR, os.path.dirname(relative_path_of_code_file))
-        output_file_name = f"{file_name_without_ext}_deep_doc.md" # Distinct name for deep doc
+        output_file_name = f"{file_name_without_ext}_deep_doc.md"
         output_full_path_of_markdown_doc = os.path.join(output_sub_dir, output_file_name)
 
         print(f"\nProcessing file: {relative_path_of_code_file} (Type: {file_type.capitalize()})")
@@ -256,19 +245,11 @@ def main_documentation(source_code_path, doc_output_path):
 
         full_markdown_doc = f"# Deep Documentation for `{relative_path_of_code_file}`\n\n"
         full_markdown_doc += f"**Original File Type:** {file_type.capitalize()}\n\n"
-        full_markdown_doc += f"--- \n\n" # Separator
-
-        # Decide whether to include source code directly in the markdown.
-        # For deep documentation, it might be redundant if you're summarizing/explaining it.
-        # If you want to include it, uncomment the following lines:
-        # full_markdown_doc += "## Source Code\n\n"
-        # full_markdown_doc += f"```{file_type}\n{content}\n```\n\n"
-        # full_markdown_doc += "---\n\n"
+        full_markdown_doc += f"--- \n\n"
 
         documented_parts = document_file_with_ollama(content, base_name, file_type)
         full_markdown_doc += documented_parts
 
-        # Save the combined Markdown documentation
         if save_markdown(output_full_path_of_markdown_doc, full_markdown_doc):
             documented_files_info.append((relative_path_of_code_file, output_full_path_of_markdown_doc))
 
@@ -281,7 +262,7 @@ def main_documentation(source_code_path, doc_output_path):
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python deep_code_documentation.py <source_code_path> <doc_output_path>")
-        sys.exit(1) # Exit with an error code
+        sys.exit(1)
 
     source_path = sys.argv[1]
     output_path = sys.argv[2]
