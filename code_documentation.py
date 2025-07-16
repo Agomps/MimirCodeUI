@@ -3,7 +3,7 @@ import requests
 import utils
 import json
 import re
-import sys # Import sys to access command-line arguments
+import sys
 
 # --- Configuration ---
 
@@ -30,7 +30,6 @@ SUPPORTED_EXTENSIONS = {
     '.php': 'php',
 }
 
-# Global variables to be set by main_documentation
 SOURCE_CODE_DIR = None
 DOC_OUTPUT_DIR = None
 
@@ -184,7 +183,7 @@ def main_documentation(source_code_path, doc_output_path):
 
     if not file_paths:
         print("No supported files found in the specified directory. Exiting.")
-        sys.exit(0) # Exit with a success code if no files, as it's not an error, just no work to do
+        sys.exit(0)
 
     for file_path in file_paths:
         relative_path_of_code_file = os.path.relpath(file_path, SOURCE_CODE_DIR)
@@ -192,7 +191,6 @@ def main_documentation(source_code_path, doc_output_path):
         file_name_without_ext, ext = os.path.splitext(base_name)
         file_type = get_file_type(ext)
 
-        # Output path for this file's documentation
         output_sub_dir = os.path.join(DOC_OUTPUT_DIR, os.path.dirname(relative_path_of_code_file))
         output_file_name = f"{file_name_without_ext}_doc.md" # Distinct name for basic doc
         output_full_path_of_markdown_doc = os.path.join(output_sub_dir, output_file_name)
@@ -212,7 +210,7 @@ def main_documentation(source_code_path, doc_output_path):
         if len(chunks) > 1:
             print(f"File is large, splitting into {len(chunks)} chunks for processing.")
             for i, chunk in enumerate(chunks):
-                part_info = f"(Part {i+1} of {len(chunks)})" # Add part info to prompt
+                part_info = f"(Part {i+1} of {len(chunks)})"
                 print(f"  Documenting chunk {i+1}/{len(chunks)}...")
                 chunk_doc = document_with_ollama(chunk, base_name, file_type, part_info)
                 full_markdown_doc += f"## Part {i+1}\n\n{chunk_doc}\n\n---\n\n"
@@ -233,7 +231,7 @@ def main_documentation(source_code_path, doc_output_path):
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python code_documentation.py <source_code_path> <doc_output_path>")
-        sys.exit(1) # Exit with an error code
+        sys.exit(1)
 
     source_path = sys.argv[1]
     output_path = sys.argv[2]
