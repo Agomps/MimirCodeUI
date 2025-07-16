@@ -169,7 +169,6 @@ with gr.Blocks() as mimir_code_ui:
     )
 
 if __name__ == "__main__":
-    # Ensure the base directories exist
     os.makedirs(TEMP_BASE_DIR, exist_ok=True)
     os.makedirs(DOC_OUTPUT_BASE_DIR, exist_ok=True)
     mimir_code_ui.launch()
