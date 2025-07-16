@@ -10,12 +10,12 @@ To get started with this project on your local machine, follow these steps:
 
 1. First, clone the repository containing the project files to your local computer using a command line tool like Git Bash or Terminal. For example:
    ```
-   git clone https://github.com/Agomps/MimirCode.git
+   git clone https://github.com/Agomps/MimirCodeUI.git
    ```
 
 2. Navigate to the project directory:
    ```
-   cd MimirCode
+   cd MimirCodeUI
    ```
    
 3. Create a new Python virtual environment using the venv module:
