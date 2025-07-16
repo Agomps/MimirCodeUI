@@ -1,0 +1,8 @@
+{
+    "ANALYSIS_OUTPUT_DIR": "code_analysis_output",
+    "OUTPUT_DIR" : "documentation_output",
+    "OLLAMA_API_URL" : "[OLLAMA_API_URL]",
+    "OLLAMA_MODEL" : "[OLLAMA_MODEL]",
+    "CHUNK_SIZE_CHARACTERS" : 4000,
+    "EXCLUDE_DIRS": ["node_modules", ".git", "venv", "__pycache__", "bin", "obj", "dist", "Migrations", "wwwroot"]
+}
