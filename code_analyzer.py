@@ -1,16 +1,12 @@
 import os
 import requests
-import utils # Assuming utils.py exists and handles config reading
+import utils
 import json
 import re
 from collections import defaultdict
-import sys # Import sys to access command-line arguments
+import sys 
 
 # --- Configuration (can reuse or extend from code_documentation's config) ---
-
-# These will be set based on command-line arguments, but we'll keep them
-# as global variables for consistency with how they're used throughout the script.
-# They will be overwritten by the main_analysis function's arguments.
 CONFIG = utils.read_config("config.json") # Ensure config.json has these keys
 OLLAMA_API_URL = CONFIG["OLLAMA_API_URL"]
 OLLAMA_MODEL = CONFIG["OLLAMA_MODEL"]
@@ -33,8 +29,6 @@ SUPPORTED_EXTENSIONS = {
     '.php': 'php',
 }
 EXCLUDE_DIRS = CONFIG["EXCLUDE_DIRS"]
-
-# Global variables to be set by main_analysis
 SOURCE_CODE_DIR = None
 DOC_OUTPUT_DIR = None
 
@@ -176,7 +170,6 @@ Analysis and Recommendations:
 
 # --- Main Execution Logic for Analysis ---
 
-# Modified to accept source_code_path and doc_output_path as arguments
 def main_analysis(source_code_path, doc_output_path):
     global SOURCE_CODE_DIR, DOC_OUTPUT_DIR
     SOURCE_CODE_DIR = source_code_path
@@ -184,7 +177,6 @@ def main_analysis(source_code_path, doc_output_path):
 
     if not os.path.isdir(SOURCE_CODE_DIR):
         print(f"Error: The provided source path '{SOURCE_CODE_DIR}' is not a valid directory or does not exist.")
-        # Exit with an error code to signal failure to the calling script (Gradio UI)
         sys.exit(1)
 
     os.makedirs(DOC_OUTPUT_DIR, exist_ok=True)
@@ -195,10 +187,8 @@ def main_analysis(source_code_path, doc_output_path):
 
     if not file_paths:
         print("No supported files found in the specified directory for analysis. Exiting.")
-        # Exit with a success code if no files, as it's not an error, just no work to do
         sys.exit(0)
 
-    # Phase 1: Read all file contents
     print("\nPhase 1: Reading file contents...")
     for file_path in file_paths:
         relative_path = os.path.relpath(file_path, SOURCE_CODE_DIR)
@@ -208,7 +198,6 @@ def main_analysis(source_code_path, doc_output_path):
         else:
             print(f"Skipping analysis for {relative_path} due to read error.")
 
-    # Phase 2: Analyze each file
     print("\nPhase 2: Analyzing individual files...")
     analyzed_files_info = []
 
@@ -217,7 +206,6 @@ def main_analysis(source_code_path, doc_output_path):
         file_name_without_ext, ext = os.path.splitext(base_name)
         file_type = get_file_type(ext)
 
-        # Create output path for this file's analysis
         output_sub_dir = os.path.join(DOC_OUTPUT_DIR, os.path.dirname(relative_path))
         output_file_name = f"{file_name_without_ext}_analysis.md"
         output_full_path = os.path.join(output_sub_dir, output_file_name)
@@ -234,8 +222,6 @@ def main_analysis(source_code_path, doc_output_path):
             print(f"File is large, splitting into {len(chunks)} chunks for analysis.")
             for i, chunk in enumerate(chunks):
                 print(f"  Analyzing chunk {i+1}/{len(chunks)}...")
-                # The LLM will have less context per chunk. This is a limitation.
-                # A more advanced approach would be to summarize previous chunks or provide a higher-level prompt.
                 chunk_analysis = analyze_code_for_refactoring_and_reuse(
                     chunk, base_name, file_type,
                     project_context=f"This is part {i+1} of {len(chunks)} of the file. Consider previous parts if they were processed, though this model only sees this chunk."
@@ -249,14 +235,12 @@ def main_analysis(source_code_path, doc_output_path):
         if save_analysis_report(output_full_path, full_analysis_report):
             analyzed_files_info.append((relative_path, output_full_path))
 
-    # Phase 3: Generate an overall summary (optional, but highly recommended)
     print("\nPhase 3: Generating overall project summary (if applicable)...")
     generate_overall_summary(all_file_contents, analyzed_files_info, SOURCE_CODE_DIR, DOC_OUTPUT_DIR)
 
     print("\nCode analysis complete!")
     print(f"Check the '{DOC_OUTPUT_DIR}' directory for your generated Markdown analysis reports.")
 
-# No change needed here, it uses the global DOC_OUTPUT_DIR and SOURCE_CODE_DIR
 def generate_overall_summary(all_file_contents, analyzed_files_info, root_dir, output_dir):
     summary_file_path = os.path.join(output_dir, "PROJECT_ANALYSIS_SUMMARY.md")
     summary_content = "# Project Code Analysis Summary\n\n"
@@ -268,7 +252,6 @@ def generate_overall_summary(all_file_contents, analyzed_files_info, root_dir, o
         save_analysis_report(summary_file_path, summary_content)
         return
 
-    # Create a simple table of contents for the analysis reports
     summary_content += "## Individual File Analysis Reports\n\n"
     analyzed_files_info.sort(key=lambda x: x[0].lower())
     for original_relative_path, md_full_path in analyzed_files_info:
@@ -308,7 +291,7 @@ Overall Codebase Analysis Summary:
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python code_analysis.py <source_code_path> <doc_output_path>")
-        sys.exit(1) # Exit with an error code
+        sys.exit(1)
 
     source_path = sys.argv[1]
     output_path = sys.argv[2]
