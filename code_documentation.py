@@ -192,7 +192,7 @@ def main_documentation(source_code_path, doc_output_path):
         file_type = get_file_type(ext)
 
         output_sub_dir = os.path.join(DOC_OUTPUT_DIR, os.path.dirname(relative_path_of_code_file))
-        output_file_name = f"{file_name_without_ext}_doc.md" # Distinct name for basic doc
+        output_file_name = f"{file_name_without_ext}_doc.md"
         output_full_path_of_markdown_doc = os.path.join(output_sub_dir, output_file_name)
 
         print(f"\nProcessing file: {relative_path_of_code_file} (Type: {file_type.capitalize()})")
