@@ -7,10 +7,10 @@ from collections import defaultdict
 import sys 
 
 # --- Configuration (can reuse or extend from code_documentation's config) ---
-CONFIG = utils.read_config("config.json") # Ensure config.json has these keys
+CONFIG = utils.read_config("config.json")
 OLLAMA_API_URL = CONFIG["OLLAMA_API_URL"]
 OLLAMA_MODEL = CONFIG["OLLAMA_MODEL"]
-CHUNK_SIZE_CHARACTERS = CONFIG["CHUNK_SIZE_CHARACTERS"] # Keep for large files
+CHUNK_SIZE_CHARACTERS = CONFIG["CHUNK_SIZE_CHARACTERS"]
 SUPPORTED_EXTENSIONS = {
     '.cs': 'csharp',
     '.ts': 'typescript',
@@ -32,8 +32,6 @@ EXCLUDE_DIRS = CONFIG["EXCLUDE_DIRS"]
 SOURCE_CODE_DIR = None
 DOC_OUTPUT_DIR = None
 
-
-# --- Helper Functions (reused or slightly modified from code_documentation.py) ---
 
 def get_file_type(extension):
     return SUPPORTED_EXTENSIONS.get(extension.lower(), 'unknown')
